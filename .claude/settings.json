@@ -1,0 +1,21 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/check-public.sh"
+          },
+          {
+            "type": "agent",
+            "if": "Bash(git commit*)",
+            "timeout": 120,
+            "prompt": "この repo は public として公開される。これから実行される git commit の内容を公開してよいか判定する。\n\n1. `git diff --cached` で staged の変更を読む。\n2. `.claude/public-check.local.txt` があれば読む。公開してはいけない語のリスト。\n3. 次のどれかに当たれば ok: false とし、reason にファイル名・行・理由を書く:\n   - 秘密情報 (API key、token、パスワード、秘密鍵、個人のメールアドレス)\n   - 禁止語リストの語、またはそれと同じものを指す表現\n   - 非公開のドキュメントのパス、非公開システムの構成・運用、非公開のやり取りの引用など、公開されていない情報が文脈から読み取れる記述\n   - 実在の組織名・個人名、非公開の URL\n4. 一般的な技術の例示、公開されている OSS・サービス・資料の情報、repo 所有者本人の名前 (plugin の author など) は問題にしない。\n5. 当てはまらなければ ok: true。\n\nhook input: $ARGUMENTS"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "nakamasato",
+  "owner": { "name": "Masato Naka" },
+  "plugins": [
+    {
+      "name": "doc",
+      "source": "./plugins/doc",
+      "description": "Skills for updating and refactoring Markdown docs with a consistent section structure and heading style"
+    },
+    {
+      "name": "skill",
+      "source": "./plugins/skill",
+      "description": "Structural review of a skill: what belongs in SKILL.md versus references/ and scripts/"
+    }
+  ]
+}
