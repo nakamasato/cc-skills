@@ -1,0 +1,6 @@
+{
+  "name": "skill",
+  "description": "Structural review of a skill: what belongs in SKILL.md versus references/ and scripts/",
+  "version": "0.1.0",
+  "author": { "name": "Masato Naka" }
+}
