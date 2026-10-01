@@ -1,4 +1,4 @@
-# Claude Code and Codex Skills
+# Agent Skills
 
 Claude Code と Codex の plugin marketplace。
 
