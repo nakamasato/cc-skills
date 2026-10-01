@@ -1,0 +1,7 @@
+{
+  "name": "doc",
+  "version": "0.1.0",
+  "description": "Skills for updating and refactoring Markdown docs with a consistent section structure and heading style",
+  "author": { "name": "Masato Naka" },
+  "skills": "./skills/"
+}
