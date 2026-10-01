@@ -1,6 +1,6 @@
-# Claude Code Skills
+# Agent Skills
 
-Claude Code の plugin marketplace。
+Claude Code と Codex の plugin marketplace。
 
 ## Plugins
 
@@ -11,6 +11,8 @@ Claude Code の plugin marketplace。
 
 ## Installation
 
+### Claude Code
+
 ```
 /plugin marketplace add nakamasato/cc-skills
 /plugin install doc@nakamasato
@@ -18,3 +20,11 @@ Claude Code の plugin marketplace。
 ```
 
 ローカルの clone から試す場合は `/plugin marketplace add ./` を使う。
+
+### Codex
+
+```bash
+codex plugin marketplace add nakamasato/cc-skills
+```
+
+追加後、CodexのPlugin一覧から `doc` または `skill` をインストールする。
