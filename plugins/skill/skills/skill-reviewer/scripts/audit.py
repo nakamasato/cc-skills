@@ -17,11 +17,6 @@ try:
 except ImportError:
     yaml = None
 
-TOOL_HINTS = {
-    "Bash": re.compile(r"```(?:bash|sh|shell|console)\b"),
-    "Edit": re.compile(r"\b(apply|edit|rewrite|fix)\b", re.I),
-    "Write": re.compile(r"\b(write|create) (?:a |the )?(?:new )?file\b", re.I),
-}
 POINTER = re.compile(r"\[[^\]]*\]\(([^)]+)\)|`([^`]*\.(?:md|py|sh|js|ts|json|ya?ml))`")
 # コードブロックの中で呼んでいる scripts/ も「指している」に数える
 PATH_IN_CODE = re.compile(r"[\w./${}-]*?((?:references|scripts|assets)/[\w./-]+)")
@@ -70,38 +65,24 @@ def audit(root: Path):
 
     findings = []
     if (n := len(text.splitlines())) > 500:
-        findings.append(("size", f"SKILL.md is {n} lines; the docs put the ceiling at 500"))
+        findings.append(("size", f"SKILL.md is {n} lines; inspect whether conditional detail belongs in references (heuristic)"))
 
-    if not text.startswith("---"):
-        findings.append(("frontmatter", "does not start on line 1, so the skill loads with no fields"))
-    elif yaml is not None:
-        head = text[3 : text.find("\n---", 3)]
+    if not re.match(r"^---[ \t]*\r?\n", text):
+        findings.append(("frontmatter", "missing opening frontmatter delimiter on line 1"))
+    elif not re.search(r"^---[ \t]*$", text.split("\n", 1)[1], re.M):
+        findings.append(("frontmatter", "missing closing frontmatter delimiter"))
+    elif yaml is None:
+        findings.append(("validation", "PyYAML unavailable; YAML validity was not checked"))
+    else:
+        head = re.split(r"^---[ \t]*$", text, maxsplit=2, flags=re.M)[1]
         try:
-            yaml.safe_load(head)
-        except Exception as e:
-            findings.append(("frontmatter", f"YAML does not parse, so every field is ignored without an error: {e}"))
-    if root.name.lower() == "synced":
-        findings.append(("frontmatter", "`synced` is reserved for skills downloaded from claude.ai; this skill is skipped"))
-    if fm.get("name") and fm["name"] != root.name:
-        findings.append(("frontmatter",
-                         f"name `{fm['name']}` differs from directory `{root.name}`; the command is the directory name"))
-    trigger = len(fm.get("description", "")) + len(fm.get("when_to_use", ""))
-    if trigger > 1536:
-        findings.append(("frontmatter", f"description + when_to_use is {trigger} characters; the listing truncates at 1536"))
-    for field in ("name", "description", "allowed-tools"):
-        if field not in fm:
-            findings.append(("frontmatter", f"`{field}` is missing"))
-    allowed = [t.strip() for t in fm.get("allowed-tools", "").split(",") if t.strip()]
-    for tool, hint in TOOL_HINTS.items():
-        if hint.search(body) and allowed and tool not in allowed:
-            findings.append(("frontmatter", f"the body implies `{tool}` but allowed-tools omits it"))
-
-    for m in re.finditer(r"(?:^|\s)!`([^`]+)`", body):
-        if not re.match(r"^[\w./$-]+(?:\s|$)", m.group(1)):
-            continue  # 散文の中の説明であって、注入される形ではない
-        if "|| true" not in m.group(1):
-            findings.append(("injection",
-                             f"`!`{m.group(1)}`` aborts the whole invocation on a non-zero exit; append `|| true` if it can"))
+            parsed = yaml.safe_load(head)
+            if not isinstance(parsed, dict):
+                findings.append(("frontmatter", "frontmatter must be a YAML mapping"))
+            else:
+                fm = parsed
+        except yaml.YAMLError as e:
+            findings.append(("frontmatter", f"YAML does not parse: {e}"))
 
     for target in sorted(pointed):
         if not target.startswith(("references/", "scripts/", "assets/")):
@@ -116,7 +97,7 @@ def audit(root: Path):
     for p in supporting:
         rel = p.relative_to(root).as_posix()
         if not any(rel.endswith(t) or t.endswith(rel) for t in pointed):
-            findings.append(("orphan", f"`{rel}` is not pointed to from SKILL.md"))
+            findings.append(("orphan", f"`{rel}` has no direct pointer from SKILL.md; check references and host discovery before treating it as orphaned"))
 
     files = [skill] + [p for p in supporting if p.suffix == ".md"]
     sizes = {p.relative_to(root).as_posix(): len(p.read_text().splitlines()) for p in files}
