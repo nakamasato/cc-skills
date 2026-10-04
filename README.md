@@ -25,6 +25,8 @@ Claude Code と Codex の plugin marketplace。
 
 ```bash
 codex plugin marketplace add nakamasato/cc-skills
+codex plugin add doc@nakamasato
+codex plugin add skill@nakamasato
 ```
 
-追加後、CodexのPlugin一覧から `doc` または `skill` をインストールする。
+マーケットプレイスを追加した後、使いたいプラグインをインストールする。
