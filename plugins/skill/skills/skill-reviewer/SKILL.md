@@ -19,7 +19,8 @@ First establish where and how the skill is intended to be used: target host and 
 - OpenClaw: [references/openclaw-skill.md](references/openclaw-skill.md).
 - Hermes Agent: [references/hermes-agent-skill.md](references/hermes-agent-skill.md).
 - Multiple hosts: apply the shared checks once and each host's checks separately. Label compatibility findings by host.
-- Other or unknown hosts: continue with the shared checks; consult that host's official documentation before making host-specific claims. State any unresolved compatibility assumptions. Do not assume that a field or runtime feature supported by one host works on another.
+- Unknown destination or an unlisted host: use only the [generic Agent Skills checklist](references/agentskills-checklist.md). Do not infer host-specific behavior or flag host-specific fields as defects. If the user later names a host, apply its reference and verify any host-specific claims against official documentation.
+- Other stated but unlisted hosts: use the generic Agent Skills checklist, then consult that host's official documentation for any host-specific compatibility assessment. State unresolved assumptions. Do not assume one host's extensions work on another.
 
 ## Review procedure
 
